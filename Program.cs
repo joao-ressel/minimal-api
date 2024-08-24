@@ -8,7 +8,17 @@ using MinimalApi.Infraestrutura.Db;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IAdministradorServico, AdministradorServico>();
 
-builder.Services.AddDbContext<DbContexto>(options => {
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc(
+        "v1",
+        new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "v1" }
+    );
+});
+
+builder.Services.AddDbContext<DbContexto>(options =>
+{
     options.UseMySql(
         builder.Configuration.GetConnectionString("mysql"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("mysql"))
@@ -30,6 +40,10 @@ app.MapPost(
     }
 );
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.Run();
-
-
