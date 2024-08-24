@@ -14,6 +14,7 @@ namespace MinimalApi.Dominio.Entidades
         [StringLength(255)]
         public string Email { get; set; } = default!;
 
+        [Required]
         [StringLength(50)]
         public string Senha { get; set; } = default!;
 
