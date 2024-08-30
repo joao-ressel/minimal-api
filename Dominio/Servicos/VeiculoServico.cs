@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Dominio.Entidades;
 using MinimalApi.Dominio.Interfaces;
@@ -9,6 +8,13 @@ namespace MinimalApi.Dominio.Servicos
     public class VeiculoServico : IVeiculoServico
     {
         private readonly DbContexto _contexto;
+
+        // Construtor que recebe o DbContexto
+        public VeiculoServico(DbContexto contexto)
+        {
+            _contexto = contexto ?? throw new ArgumentNullException(nameof(contexto));
+        }
+
         public void Apagar(Veiculo veiculo)
         {
             _contexto.Veiculos.Remove(veiculo);
@@ -35,9 +41,11 @@ namespace MinimalApi.Dominio.Servicos
         public List<Veiculo> Todos(int pagina = 1, string? nome = null, string? marca = null)
         {
             var query = _contexto.Veiculos.AsQueryable();
-            if(!string.IsNullOrEmpty(nome))
+            if (!string.IsNullOrEmpty(nome))
             {
-                query = query.Where(v => EF.Functions.Like(v.Nome.ToLower(), $"%{nome.ToLower()}%"));
+                query = query.Where(v =>
+                    EF.Functions.Like(v.Nome.ToLower(), $"%{nome.ToLower()}%")
+                );
             }
             int itensPorPagina = 10;
             query = query.Skip(pagina - 1 * itensPorPagina).Take(itensPorPagina);
