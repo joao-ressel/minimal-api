@@ -52,6 +52,25 @@ app.MapPost(
 #endregion
 
 #region Veiculos
+
+static ErrosDeValidacao validaDTO(VeiculoDTO veiculoDTO)
+{
+    var validacao = new ErrosDeValidacao{
+        Mensagens = []
+    };
+
+    if (string.IsNullOrEmpty(veiculoDTO.Nome))
+        validacao.Mensagens.Add("O nome não pode ser vazio");
+
+    if (string.IsNullOrEmpty(veiculoDTO.Marca))
+        validacao.Mensagens.Add("A marca não pode ser vazia");
+
+    if (veiculoDTO.Ano < 1950)
+        validacao.Mensagens.Add("O veículo é muito, aceito somente anos superiores a 1950");
+
+    return validacao;
+}
+
 app.MapPost(
         "/veiculos",
         ([FromBody] VeiculoDTO veiculoDTO, IVeiculoServico veiculoServico) =>
@@ -67,6 +86,23 @@ app.MapPost(
         }
     )
     .WithTags("Veículos");
+    "/veiculos",
+    ([FromBody] VeiculoDTO veiculoDTO, IVeiculoServico veiculoServico) =>
+    {
+        var validacao = validaDTO(veiculoDTO);
+        if (validacao.Mensagens.Count > 0)
+            return Results.BadRequest(validacao);
+
+        var veiculo = new Veiculo
+        {
+            Nome = veiculoDTO.Nome,
+            Marca = veiculoDTO.Marca,
+            Ano = veiculoDTO.Ano,
+        };
+        veiculoServico.Incluir(veiculo);
+        return Results.Created($"/veiculo/{veiculo.Id}", veiculo);
+    };
+)
 
 app.MapGet(
         "/veiculos",
@@ -130,3 +166,4 @@ app.UseSwaggerUI();
 
 app.Run();
 #endregion
+
