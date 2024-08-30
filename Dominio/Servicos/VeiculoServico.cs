@@ -8,7 +8,7 @@ namespace MinimalApi.Dominio.Servicos
 {
     public class VeiculoServico : IVeiculoServico
     {
-        private readonly DbContexto? _contexto;
+        private readonly DbContexto _contexto;
         public void Apagar(Veiculo veiculo)
         {
             _contexto.Veiculos.Remove(veiculo);
