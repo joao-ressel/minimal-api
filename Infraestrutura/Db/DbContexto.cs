@@ -34,7 +34,7 @@ namespace MinimalApi.Infraestrutura.Db
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var stringConexao = _configuracaoAppSettings.GetConnectionString("mysql");
+                var stringConexao = _configuracaoAppSettings.GetConnectionString("MySql");
                 if (!string.IsNullOrEmpty(stringConexao))
                 {
                     optionsBuilder.UseMySql(stringConexao, ServerVersion.AutoDetect(stringConexao));
