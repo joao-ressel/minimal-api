@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MinimalApi.Dominio.Entidades
 {
-    public class Adminstrador
+    public class Administrador
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

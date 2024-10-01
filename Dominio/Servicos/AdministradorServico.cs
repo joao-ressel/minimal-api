@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MinimalApi.Dominio.DTOs;
 using MinimalApi.Dominio.Entidades;
 using MinimalApi.Dominio.Interfaces;
 using MinimalApi.DTOs;
@@ -15,11 +16,36 @@ namespace MinimalApi.Dominio.Servicos
             _contexto = contexto;
         }
 
-
-        Adminstrador? IAdministradorServico.Login(LoginDTO loginDTO)
+        public Administrador? Incluir(Administrador administrador)
         {
-           var adm = _contexto.Administradores
-                .FirstOrDefault(a => a.Email == loginDTO.Email && a.Senha == loginDTO.Senha);
+            _contexto.Administradores.Add(administrador);
+            _contexto.SaveChanges();
+            return administrador;
+        }
+
+        public Administrador? BuscarPorId(int id)
+        {
+            return _contexto.Administradores.Where(a => a.Id == id).FirstOrDefault();
+        }
+
+        public List<Administrador> Todos(int? pagina)
+        {
+            var query = _contexto.Administradores.AsQueryable();
+
+            int itensPorPagina = 10;
+
+            if (pagina != null)
+            {
+                query = query.Skip((int)pagina - 1 * itensPorPagina).Take(itensPorPagina);
+            }
+            return query.ToList();
+        }
+
+        Administrador? IAdministradorServico.Login(LoginDTO loginDTO)
+        {
+            var adm = _contexto.Administradores.FirstOrDefault(a =>
+                a.Email == loginDTO.Email && a.Senha == loginDTO.Senha
+            );
             return adm;
         }
     }

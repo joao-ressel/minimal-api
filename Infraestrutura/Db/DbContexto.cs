@@ -12,15 +12,15 @@ namespace MinimalApi.Infraestrutura.Db
             _configuracaoAppSettings = configuracaoAppSettings;
         }
 
-        public DbSet<Adminstrador> Administradores { get; set; } = default!;
+        public DbSet<Administrador> Administradores { get; set; } = default!;
         public DbSet<Veiculo> Veiculos { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<Adminstrador>()
+                .Entity<Administrador>()
                 .HasData(
-                    new Adminstrador
+                    new Administrador
                     {
                         Id = 1,
                         Email = "admin@gmail.com",
