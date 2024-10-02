@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MinimalApi.Dominio.DTOs;
 using MinimalApi.Dominio.DTOs.Enuns;
 using MinimalApi.Dominio.Entidades;
@@ -19,7 +20,7 @@ using MinimalApi.Infraestrutura.Db;
 var builder = WebApplication.CreateBuilder(args);
 var key = builder.Configuration.GetSection("Jwt").ToString();
 if (string.IsNullOrEmpty(key))
-    key = "123456";
+    key = "admin";
 
 builder
     .Services.AddAuthentication(option =>
@@ -33,6 +34,8 @@ builder
         {
             ValidateLifetime = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
         };
     });
 builder.Services.AddAuthorization();
@@ -41,12 +44,37 @@ builder.Services.AddScoped<IAdministradorServico, AdministradorServico>();
 builder.Services.AddScoped<IVeiculoServico, VeiculoServico>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(option =>
 {
-    c.SwaggerDoc(
-        "v1",
-        new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "v1" }
+    option.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Insira o token JWT desta maneira: Bearer {seu token}",
+        }
     );
+    option.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Minha API", Version = "v1" });
 });
 
 builder.Services.AddDbContext<DbContexto>(options =>
@@ -61,7 +89,7 @@ var app = builder.Build();
 #endregion
 
 #region Home
-app.MapGet("/", () => Results.Json(new Home())).WithTags("Home");
+app.MapGet("/", () => Results.Json(new Home())).AllowAnonymous().WithTags("Home");
 #endregion
 
 #region  Administradores
@@ -108,6 +136,7 @@ app.MapPost(
                 return Results.Unauthorized();
         }
     )
+    .AllowAnonymous()
     .WithTags("Administradores");
 
 app.MapPost(
